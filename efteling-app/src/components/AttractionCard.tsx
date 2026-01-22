@@ -1,4 +1,6 @@
 import { Card, CardContent, CardMedia, Typography, Box, Avatar, Chip } from "@mui/material";
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import PersonIcon from '@mui/icons-material/Person';
 
 type ShowTime = {
   localFromDate: string;
@@ -27,6 +29,8 @@ type Attraction = {
   state: string;
   showTimes?: { showTimes: ShowTime[] };
   openingTimes?: OpeningTime[];
+  minSizeWithEscort: number;
+  minSizeWithoutEscort: number;
 };
 
 export default function AttractionCard({ attraction }: { attraction: Attraction }) {
@@ -58,21 +62,22 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           gutterBottom
           variant="h6"
           component="div"
-          sx={{ display: "flex", justifyContent: "space-between" }}
+          sx={{ display: "flex", justifyContent: "end" }}
         >
-          {attraction.title}
           {attraction.category === "ATTRACTION" && attraction.currentWaitTime > 0 && (
             <Avatar
-              sx={{ mt: "-2rem", bgcolor: "rgb(170,24,44)" }}
+              sx={{ mt: "-2rem", mr: "1rem", bgcolor: "rgb(170,24,44)" }}
             >
               {attraction.currentWaitTime ?? 0}
             </Avatar>
+            
           )}
           {attraction.state !== "OPEN" && (
             <Chip
               label="Gesloten"
               sx={{
                 mt: "-2rem",
+                mr: "1rem",
                 bgcolor: "rgb(170,24,44)",
                 color: "#fff",
                 fontSize: "16px",
@@ -92,7 +97,7 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           )}
           {attraction.category === "RESTAURANT" && firstOpening && (
             <Chip
-              label={`Open ${formatTimeRange(firstOpening.openTime, firstOpening.closeTime)}`}
+              label={`${formatTimeRange(firstOpening.openTime, firstOpening.closeTime)}`}
               sx={{
                 mt: "-2rem",
                 bgcolor: "rgb(170,24,44)",
@@ -103,12 +108,55 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           )}
         </Typography>
 
+          <Typography
+          gutterBottom
+          component="div"
+          sx={{ display: "flex", justifyContent: "space-between" }}
+          >
+          {attraction.title}
+          </Typography>
+
         <Typography variant="subtitle2" color="text.secondary">
           {attraction.subTitle}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           {stripHtml(attraction.description).slice(0, 100)}...
         </Typography>
+
+        <Typography
+          gutterBottom
+          variant="h6"
+          component="div"
+          sx={{ display: "flex", justifyContent: "end"}}
+        >
+          {attraction.category === "ATTRACTION" && attraction.minSizeWithEscort > 90 && (
+              <Chip
+                label={`${attraction.minSizeWithEscort} cm`}
+                icon={<FamilyRestroomIcon color="primary" sx={{ color: "#fff" }}/>}
+                sx={{
+                  mt: "1rem",
+                  bgcolor: "rgb(170,24,44)",
+                  color: "#fff",
+                  fontSize: "16px",
+                }}
+              />
+            )}
+                    {attraction.category === "ATTRACTION" && attraction.minSizeWithoutEscort > 90 && (
+              <Chip
+                label={`${attraction.minSizeWithoutEscort} cm`}
+                icon={<PersonIcon color="primary" sx={{ color: "#fff" }}/>}
+                sx={{
+                  mt: "1rem",
+                  ml: "1rem",
+                  bgcolor: "rgb(170,24,44)",
+                  color: "#fff",
+                  fontSize: "16px",
+                }}
+              />
+            )}
+          </Typography>
+          
+  
 
         {/* Showtimes (for SHOW category) */}
         {attraction.category === "SHOW" && attraction.state === "OPEN" && (
