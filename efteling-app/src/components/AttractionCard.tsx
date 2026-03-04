@@ -68,7 +68,7 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
             <Avatar
               sx={{ mt: "-2rem", mr: "1rem", bgcolor: "rgb(170,24,44)" }}
             >
-              {attraction.currentWaitTime ?? 0}
+              {0}
             </Avatar>
             
           )}
