@@ -66,9 +66,9 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
         >
           {attraction.category === "ATTRACTION" && attraction.currentWaitTime > 0 && (
             <Avatar
-              sx={{ mt: "-2rem", mr: "1rem", bgcolor: "rgb(170,24,44)" }}
+              sx={{ mt: "-2rem", mr: "1rem"}}
             >
-              {0}
+              {attraction.currentWaitTime ?? 0}
             </Avatar>
             
           )}
