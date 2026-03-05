@@ -1,6 +1,8 @@
-import { Card, CardContent, CardMedia, Typography, Box, Avatar, Chip } from "@mui/material";
+import { Card, CardContent, CardMedia, Typography, Box, Avatar, Chip, IconButton } from "@mui/material";
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import PersonIcon from '@mui/icons-material/Person';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+
 
 type ShowTime = {
   localFromDate: string;
@@ -56,6 +58,7 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           image={attraction.image_url}
           alt={attraction.title}
         />
+
       )}
       <CardContent>
         <Typography
@@ -66,11 +69,11 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
         >
           {attraction.category === "ATTRACTION" && attraction.currentWaitTime > 0 && (
             <Avatar
-              sx={{ mt: "-2rem", mr: "1rem"}}
+              sx={{ mt: "-2.2rem", mr: "1rem", bgcolor: "rgb(170,24,44)" }}
             >
               {attraction.currentWaitTime ?? 0}
             </Avatar>
-            
+
           )}
           {attraction.state !== "OPEN" && (
             <Chip
@@ -108,17 +111,17 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           )}
         </Typography>
 
-          <Typography
+        <Typography
           gutterBottom
           component="div"
           sx={{ display: "flex", justifyContent: "space-between" }}
-          >
+        >
           {attraction.title}
-          </Typography>
-
-        <Typography variant="subtitle2" color="text.secondary">
-          {attraction.subTitle}
         </Typography>
+
+        {/* <Typography variant="subtitle2" color="text.secondary">
+          {attraction.subTitle}
+        </Typography> */}
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           {stripHtml(attraction.description).slice(0, 100)}...
         </Typography>
@@ -127,36 +130,54 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           gutterBottom
           variant="h6"
           component="div"
-          sx={{ display: "flex", justifyContent: "end"}}
+          sx={{ display: "flex" }}
         >
           {attraction.category === "ATTRACTION" && attraction.minSizeWithEscort > 90 && (
-              <Chip
-                label={`${attraction.minSizeWithEscort} cm`}
-                icon={<FamilyRestroomIcon color="primary" sx={{ color: "#fff" }}/>}
-                sx={{
-                  mt: "1rem",
-                  bgcolor: "rgb(170,24,44)",
-                  color: "#fff",
-                  fontSize: "16px",
-                }}
-              />
-            )}
-                    {attraction.category === "ATTRACTION" && attraction.minSizeWithoutEscort > 90 && (
-              <Chip
-                label={`${attraction.minSizeWithoutEscort} cm`}
-                icon={<PersonIcon color="primary" sx={{ color: "#fff" }}/>}
-                sx={{
-                  mt: "1rem",
-                  ml: "1rem",
-                  bgcolor: "rgb(170,24,44)",
-                  color: "#fff",
-                  fontSize: "16px",
-                }}
-              />
-            )}
-          </Typography>
-          
-  
+            <Chip
+              label={`${attraction.minSizeWithEscort} cm`}
+              icon={<FamilyRestroomIcon color="primary" sx={{ color: "#fff" }} />}
+              sx={{
+                mt: "1rem",
+                mr: "0.5rem",
+                bgcolor: "rgb(170,24,44)",
+                color: "#fff",
+                fontSize: "16px",
+              }}
+            />
+          )}
+          {attraction.category === "ATTRACTION" && attraction.minSizeWithoutEscort > 90 && (
+            <Chip
+              label={`${attraction.minSizeWithoutEscort} cm`}
+              icon={<PersonIcon color="primary" sx={{ color: "#fff" }} />}
+              sx={{
+                mt: "1rem",
+                bgcolor: "rgb(170,24,44)",
+                color: "#fff",
+                fontSize: "16px",
+              }}
+            />
+          )}
+          {attraction.category === "ATTRACTION" && (
+            <IconButton sx={{
+              mt: "0.75rem", bgcolor: "rgb(170,24,44)", marginLeft: "auto", '&:hover': {
+                bgcolor: "#fdfdd7eb", // A slightly lighter red    // Slight pop effect
+              },
+              // You can even target the icon inside when the button is hovered
+              '&:hover .MuiSvgIcon-root': {
+                color: "rgb(170,24,44)",
+              }
+            }}>
+              <ArrowForwardIosIcon sx={{
+                color: "#fff",
+
+              }} />
+            </IconButton>
+          )}
+        </Typography>
+
+
+
+
 
         {/* Showtimes (for SHOW category) */}
         {attraction.category === "SHOW" && attraction.state === "OPEN" && (
@@ -181,7 +202,9 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
         )}
       </CardContent>
     </Card>
+
   );
+
 }
 
 // Utility function to strip HTML tags
