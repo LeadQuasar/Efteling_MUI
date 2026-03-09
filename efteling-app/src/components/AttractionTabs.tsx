@@ -1,9 +1,9 @@
 // src/components/AttractionTabs.tsx
 import { useState, useEffect } from "react";
-import Grid from '@mui/material/Grid';
 import {
   Tabs,
   Tab,
+  Grid,
   Box,
   Divider,
   CircularProgress,
@@ -12,6 +12,7 @@ import {
 import AttractionCard from "./AttractionCard";
 import axios from "axios";
 
+// Define the endpoints for the different categories
 const endpoints = {
   rides: "https://tp.arendz.nl/parks/efteling/rides",
   shops: "https://tp.arendz.nl/parks/efteling/shops",
@@ -19,7 +20,12 @@ const endpoints = {
   restaurants: "https://tp.arendz.nl/parks/efteling/restaurants"
 };
 
-export default function AttractionTabs() {
+// Define the Props type for the component
+interface AttractionTabsProps {
+  onSelectAttraction: (attraction: any) => void;
+}
+
+export default function AttractionTabs({ onSelectAttraction }: AttractionTabsProps) {
   const [tab, setTab] = useState(0);
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,7 +39,7 @@ export default function AttractionTabs() {
         const res = await axios.get(Object.values(endpoints)[tab]);
         setData(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
@@ -44,7 +50,7 @@ export default function AttractionTabs() {
   // Group attractions by area
   const groupByArea = (items: any[]) => {
     return items.reduce((acc: Record<string, any[]>, item) => {
-      const area = item.area || "Unknown Area"; // fallback if no area
+      const area = item.area || "Overige"; // fallback if no area
       if (!acc[area]) acc[area] = [];
       acc[area].push(item);
       return acc;
@@ -52,7 +58,7 @@ export default function AttractionTabs() {
   };
 
   const groupedData = groupByArea(data);
-  const sortedAreas = Object.keys(groupedData).sort(); // alphabetically sort areas
+  const sortedAreas = Object.keys(groupedData).sort();
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -61,18 +67,24 @@ export default function AttractionTabs() {
         onChange={(_, newValue) => setTab(newValue)}
         variant="scrollable"
         scrollButtons="auto"
+        centered={false}
         sx={{
-          mb: 2, justifySelf: "center", borderBottom: 2, borderColor: "rgb(170,24,44)", "& .MuiTab-root": {
-            color: "rgb(170,24,44)", // 👈 default tab text color
+          mb: 2,
+          display: 'flex',
+          placeSelf: "center",
+          borderBottom: 2,
+          borderColor: "rgb(170,24,44)",
+          "& .MuiTab-root": {
+            color: "rgb(170,24,44)",
             fontWeight: 700,
             fontSize: "1rem",
             "&.Mui-selected": {
-              color: "rgb(170,24,44)", // 👈 selected tab text color
+              color: "rgb(170,24,44)",
               fontWeight: 700,
             },
           },
           "& .MuiTabs-indicator": {
-            backgroundColor: "rgb(170,24,44)", // 👈 custom indicator color
+            backgroundColor: "rgb(170,24,44)",
           },
         }}
       >
@@ -80,43 +92,50 @@ export default function AttractionTabs() {
           <Tab key={idx} label={category} />
         ))}
       </Tabs>
+
       <Box sx={{ p: 2 }}>
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <CircularProgress />
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4, height: '50vh', alignItems: 'center' }}>
+            <CircularProgress sx={{ color: "rgb(170,24,44)" }} />
           </Box>
         ) : data.length > 0 ? (
           sortedAreas.map((area) => (
-            <Box key={area} sx={{ mb: 4 }}>
-              <Typography variant="h5" sx={{ mb: 2 }}>
+            <Box key={area} sx={{ mb: 6 }}>
+              <Typography variant="h5" sx={{ mb: 3 }}>
                 <Divider
                   sx={{
-                    color: "rgb(170,24,44)",// text color of area
+                    color: "rgb(170,24,44)",
+                    fontWeight: 'bold',
                     "&::before, &::after": {
-                      borderTop: "2px solid rgb(170,24,44)", // change line color + thickness
+                      borderTop: "2px solid rgb(170,24,44)",
                     },
                   }}
                 >
-                  {area}
+                  {area.toUpperCase()}
                 </Divider>
               </Typography>
+              
               <Grid
                 container
-                spacing={{ xs: 4, md: 4 }}
-                columns={{ xs: 3, sm: 8, md: 12 }}
-                sx={{ justifyContent: "space-evenly" }}
+                spacing={4}
+                columns={{ xs: 12, sm: 12, md: 12 }}
+                sx={{placeContent: "center"}}
               >
                 {groupedData[area].map((item, idx) => (
-                  <Grid key={idx} size={3}>
-                    <AttractionCard attraction={item} />
+                  <Grid key={idx} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                    {/* We pass the item to the onSelect function when clicked */}
+                    <AttractionCard 
+                      attraction={item} 
+                      onSelect={(selected) => onSelectAttraction(selected)}
+                    />
                   </Grid>
                 ))}
               </Grid>
             </Box>
           ))
         ) : (
-          <Typography variant="body1" sx={{ mt: 2 }}>
-            No data found for {categories[tab]}.
+          <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
+            Geen gegevens gevonden voor {categories[tab]}.
           </Typography>
         )}
       </Box>

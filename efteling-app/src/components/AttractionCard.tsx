@@ -1,13 +1,14 @@
+// src/components/AttractionCard.tsx
 import { Card, CardContent, CardMedia, Typography, Box, Avatar, Chip, IconButton } from "@mui/material";
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-
+// ... (Keep your ShowTime and OpeningTime types the same)
 type ShowTime = {
   localFromDate: string;
   localFromTime: string;
-  duration: number; // duration in minutes
+  duration: number;
   isPassed: boolean;
 };
 
@@ -15,8 +16,8 @@ type OpeningTime = {
   date: string;
   open: string;
   close: string;
-  openTime: string; // e.g. "12:00:00"
-  closeTime: string; // e.g. "22:00:00"
+  openTime: string;
+  closeTime: string;
   isPassed: boolean;
 };
 
@@ -35,9 +36,24 @@ type Attraction = {
   minSizeWithoutEscort: number;
 };
 
-export default function AttractionCard({ attraction }: { attraction: Attraction }) {
+// 1. ADD onSelect TO THE PROPS INTERFACE
+interface AttractionCardProps {
+  attraction: Attraction;
+  onSelect: (attraction: Attraction) => void;
+}
+
+// 2. DESTRUCTURE onSelect HERE
+export default function AttractionCard({ attraction, onSelect }: AttractionCardProps) {
   const firstShow = attraction.showTimes?.showTimes[0];
-  const firstOpening = attraction.openingTimes?.[0]; // 👈 get first opening time
+  const firstOpening = attraction.openingTimes?.[0];
+
+  const handleCardClick = () => {
+    if (typeof onSelect === "function") {
+      onSelect(attraction);
+    } else {
+      console.error("Critical: onSelect prop is missing or not a function!", { attraction });
+    }
+  };
 
   const formatDuration = (minutes: number) => {
     const hrs = Math.floor(minutes / 60);
@@ -46,11 +62,20 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
   };
 
   const formatTimeRange = (open: string, close: string) => {
-    return `${open.slice(0, 5)} - ${close.slice(0, 5)}`; // "12:00 - 22:00"
+    return `${open.slice(0, 5)} - ${close.slice(0, 5)}`;
   };
 
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+    <Card 
+     onClick={handleCardClick} // Now TypeScript knows what onSelect is!
+      sx={{ 
+        borderRadius: 3, 
+        boxShadow: 3, 
+        cursor: 'pointer',
+        transition: '0.3s',
+        '&:hover': { transform: 'scale(1.02)' } 
+      }}
+    >
       {attraction.image_url && (
         <CardMedia
           component="img"
@@ -58,7 +83,6 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           image={attraction.image_url}
           alt={attraction.title}
         />
-
       )}
       <CardContent>
         <Typography
@@ -68,146 +92,80 @@ export default function AttractionCard({ attraction }: { attraction: Attraction 
           sx={{ display: "flex", justifyContent: "end" }}
         >
           {attraction.category === "ATTRACTION" && attraction.currentWaitTime > 0 && (
-            <Avatar
-              sx={{ mt: "-2.2rem", mr: "1rem", bgcolor: "rgb(170,24,44)" }}
-            >
+            <Avatar sx={{ mt: "-2.2rem", mr: "1rem", bgcolor: "rgb(170,24,44)" }}>
               {attraction.currentWaitTime ?? 0}
             </Avatar>
-
           )}
           {attraction.state !== "OPEN" && (
             <Chip
               label="Gesloten"
-              sx={{
-                mt: "-2rem",
-                mr: "1rem",
-                bgcolor: "rgb(170,24,44)",
-                color: "#fff",
-                fontSize: "16px",
-              }}
+              sx={{ mt: "-2rem", mr: "1rem", bgcolor: "rgb(170,24,44)", color: "#fff", fontSize: "16px" }}
             />
           )}
           {attraction.category === "SHOW" && firstShow && (
             <Chip
               label={`Duur ${formatDuration(firstShow.duration)}`}
-              sx={{
-                mt: "-2rem",
-                bgcolor: "rgb(170,24,44)",
-                color: "#fff",
-                fontSize: "16px",
-              }}
+              sx={{ mt: "-2rem", bgcolor: "rgb(170,24,44)", color: "#fff", fontSize: "16px" }}
             />
           )}
           {attraction.category === "RESTAURANT" && firstOpening && (
             <Chip
               label={`${formatTimeRange(firstOpening.openTime, firstOpening.closeTime)}`}
-              sx={{
-                mt: "-2rem",
-                bgcolor: "rgb(170,24,44)",
-                color: "#fff",
-                fontSize: "16px",
-              }}
+              sx={{ mt: "-2rem", bgcolor: "rgb(170,24,44)", color: "#fff", fontSize: "16px" }}
             />
           )}
         </Typography>
 
-        <Typography
-          gutterBottom
-          component="div"
-          sx={{ display: "flex", justifyContent: "space-between" }}
-        >
+        <Typography gutterBottom component="div" sx={{ fontWeight: 'bold' }}>
           {attraction.title}
         </Typography>
 
-        {/* <Typography variant="subtitle2" color="text.secondary">
-          {attraction.subTitle}
-        </Typography> */}
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           {stripHtml(attraction.description).slice(0, 100)}...
         </Typography>
 
-        <Typography
-          gutterBottom
-          variant="h6"
-          component="div"
-          sx={{ display: "flex" }}
-        >
+        <Typography gutterBottom variant="h6" component="div" sx={{ display: "flex" }}>
           {attraction.category === "ATTRACTION" && attraction.minSizeWithEscort > 90 && (
             <Chip
               label={`${attraction.minSizeWithEscort} cm`}
-              icon={<FamilyRestroomIcon color="primary" sx={{ color: "#fff" }} />}
-              sx={{
-                mt: "1rem",
-                mr: "0.5rem",
-                bgcolor: "rgb(170,24,44)",
-                color: "#fff",
-                fontSize: "16px",
-              }}
+              icon={<FamilyRestroomIcon sx={{ color: "#fff !important" }} />}
+              sx={{ mt: "1rem", mr: "0.5rem", bgcolor: "rgb(170,24,44)", color: "#fff", fontSize: "14px" }}
             />
           )}
           {attraction.category === "ATTRACTION" && attraction.minSizeWithoutEscort > 90 && (
             <Chip
               label={`${attraction.minSizeWithoutEscort} cm`}
-              icon={<PersonIcon color="primary" sx={{ color: "#fff" }} />}
-              sx={{
-                mt: "1rem",
-                bgcolor: "rgb(170,24,44)",
-                color: "#fff",
-                fontSize: "16px",
-              }}
+              icon={<PersonIcon sx={{ color: "#fff !important" }} />}
+              sx={{ mt: "1rem", bgcolor: "rgb(170,24,44)", color: "#fff", fontSize: "14px" }}
             />
           )}
-          {attraction.category === "ATTRACTION" && (
-            <IconButton sx={{
-              mt: "0.75rem", bgcolor: "rgb(170,24,44)", marginLeft: "auto", '&:hover': {
-                bgcolor: "#fdfdd7eb", // A slightly lighter red    // Slight pop effect
-              },
-              // You can even target the icon inside when the button is hovered
-              '&:hover .MuiSvgIcon-root': {
-                color: "rgb(170,24,44)",
-              }
-            }}>
-              <ArrowForwardIosIcon sx={{
-                color: "#fff",
-
-              }} />
-            </IconButton>
-          )}
+          
+          <IconButton sx={{ mt: "0.75rem", bgcolor: "rgb(170,24,44)", marginLeft: "auto", "&:hover": { bgcolor: "rgb(140,20,35)" } }}>
+            <ArrowForwardIosIcon sx={{ color: "#fff", }}/>
+          </IconButton>
         </Typography>
 
-
-
-
-
-        {/* Showtimes (for SHOW category) */}
+        {/* Showtimes */}
         {attraction.category === "SHOW" && attraction.state === "OPEN" && (
-          <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1 }}>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {attraction.showTimes?.showTimes.map((show, index) => (
-                <Chip
-                  key={index}
-                  label={show.localFromTime}
-                  size="small"
-                  variant={show.isPassed ? "outlined" : "filled"}
-                  sx={{
-                    bgcolor: show.isPassed ? "#fff" : "rgb(170,24,44)",
-                    color: show.isPassed ? "#333" : "#fff",
-                    borderColor: show.isPassed ? "#999" : "rgb(170,24,44)",
-                    fontWeight: 500,
-                  }}
-                />
-              ))}
-            </Box>
+          <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {attraction.showTimes?.showTimes.map((show, index) => (
+              <Chip
+                key={index}
+                label={show.localFromTime}
+                size="small"
+                sx={{
+                  bgcolor: show.isPassed ? "#eee" : "rgb(170,24,44)",
+                  color: show.isPassed ? "#999" : "#fff",
+                }}
+              />
+            ))}
           </Box>
         )}
       </CardContent>
     </Card>
-
   );
-
 }
 
-// Utility function to strip HTML tags
 function stripHtml(html: string): string {
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
