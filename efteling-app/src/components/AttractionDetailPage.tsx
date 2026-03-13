@@ -9,6 +9,7 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
+import { useEffect } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
@@ -23,6 +24,7 @@ function stripHtml(html: string): string {
   return tmp.textContent || tmp.innerText || "";
 }
 
+
 interface AttractionDetailPageProps {
   attraction: any;
   onBack: () => void;
@@ -30,6 +32,14 @@ interface AttractionDetailPageProps {
 
 export default function AttractionDetailPage({ attraction, onBack }: AttractionDetailPageProps) {
   const eftelingRed = "rgb(170,24,44)";
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, []);
 
   // Helper to determine the label based on category
   const getCategoryLabel = (cat: string) => {
@@ -59,7 +69,7 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
         >
           <ArrowBackIcon sx={{ color: eftelingRed }} />
         </IconButton>
-        
+
         <Box
           component="img"
           src={attraction.image_url}
@@ -77,19 +87,19 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
       {/* 2. Content Container */}
       <Box sx={{ px: { xs: 2, sm: 4, md: 8, lg: 20 }, mt: -5, position: "relative" }}>
         <Paper elevation={6} sx={{ p: { xs: 3, md: 5 }, borderRadius: 4 }}>
-          
+
           <Typography variant="h3" sx={{ fontWeight: "bold", color: eftelingRed, fontSize: { xs: '1.8rem', md: '3rem' } }}>
             {attraction.title}
           </Typography>
-          
+
           {attraction.subTitle && (
-            <Typography variant="h6" sx={{ color: "text.secondary",  mb: 1 }}>
+            <Typography variant="h6" sx={{ color: "text.secondary", mb: 1 }}>
               {attraction.subTitle}
             </Typography>
           )}
 
           <Stack direction="row" spacing={1} alignItems="center" sx={{ color: "text.secondary", mt: 1, mb: 3 }}>
-            <LocationOnIcon fontSize="small" sx={{color: eftelingRed}} />
+            <LocationOnIcon fontSize="small" sx={{ color: eftelingRed }} />
             <Typography variant="h6" sx={{ fontWeight: 400, color: eftelingRed }}>{attraction.area || "Efteling"}</Typography>
           </Stack>
 
@@ -97,21 +107,21 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
           <Stack direction="row" spacing={2} sx={{ mb: 3 }} useFlexGap flexWrap="wrap">
             {attraction.category === "ATTRACTION" && attraction.state === "OPEN" && attraction.currentWaitTime !== undefined && (
               <Chip
-                icon={<AccessTimeIcon sx={{color: "#fff !important"}} />}
+                icon={<AccessTimeIcon sx={{ color: "#fff !important" }} />}
                 label={`${attraction.currentWaitTime} min wachttijd`}
                 sx={{ bgcolor: eftelingRed, color: "#fff", fontWeight: "bold" }}
               />
             )}
-            
-            <Chip 
-              icon={attraction.category === "RESTAURANT" ? <RestaurantIcon sx={{color: "#fff !important"}} /> : attraction.category === "SHOP" ? <StorefrontIcon sx={{color: "#fff !important"}} /> : undefined}
-              label={getCategoryLabel(attraction.category)} 
-              variant="outlined" 
-              sx={{ fontWeight: "bold", bgcolor: eftelingRed, color: "#fff", }} 
+
+            <Chip
+              icon={attraction.category === "RESTAURANT" ? <RestaurantIcon sx={{ color: "#fff !important" }} /> : attraction.category === "SHOP" ? <StorefrontIcon sx={{ color: "#fff !important" }} /> : undefined}
+              label={getCategoryLabel(attraction.category)}
+              variant="outlined"
+              sx={{ fontWeight: "bold", bgcolor: eftelingRed, color: "#fff", }}
             />
 
-            <Chip 
-              label={attraction.state === "OPEN" ? "Geopend" : "Gesloten"} 
+            <Chip
+              label={attraction.state === "OPEN" ? "Geopend" : "Gesloten"}
               color={attraction.state === "OPEN" ? "success" : "error"}
               sx={{ fontWeight: "bold" }}
             />
@@ -179,9 +189,9 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
               </Typography>
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
                 {attraction.showTimes.showTimes.map((show: any, i: number) => (
-                  <Chip 
-                    key={i} 
-                    label={show.localFromTime} 
+                  <Chip
+                    key={i}
+                    label={show.localFromTime}
                     disabled={show.isPassed}
                     variant={show.isPassed ? "outlined" : "filled"}
                     sx={{ bgcolor: show.isPassed ? "transparent" : eftelingRed, color: show.isPassed ? "text.disabled" : "#fff" }}
