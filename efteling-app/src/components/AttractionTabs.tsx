@@ -1,5 +1,5 @@
 // src/components/AttractionTabs.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Tabs,
   Tab,
@@ -12,7 +12,6 @@ import {
 import AttractionCard from "./AttractionCard";
 import axios from "axios";
 
-// Define the endpoints for the different categories
 const endpoints = {
   rides: "https://tp.arendz.nl/parks/efteling/rides",
   shops: "https://tp.arendz.nl/parks/efteling/shops",
@@ -20,17 +19,18 @@ const endpoints = {
   restaurants: "https://tp.arendz.nl/parks/efteling/restaurants"
 };
 
-// Define the Props type for the component
 interface AttractionTabsProps {
   onSelectAttraction: (attraction: any) => void;
 }
 
 export default function AttractionTabs({ onSelectAttraction }: AttractionTabsProps) {
   const [tab, setTab] = useState(0);
+  const [areaTab, setAreaTab] = useState("Alle");
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const categories = ["Rides", "Shops", "Shows", "Restaurants"];
+  const eftelingRed = "rgb(170,24,44)";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +38,7 @@ export default function AttractionTabs({ onSelectAttraction }: AttractionTabsPro
       try {
         const res = await axios.get(Object.values(endpoints)[tab]);
         setData(res.data);
+        setAreaTab("Alle");
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -47,45 +48,49 @@ export default function AttractionTabs({ onSelectAttraction }: AttractionTabsPro
     fetchData();
   }, [tab]);
 
-  // Group attractions by area
-  const groupByArea = (items: any[]) => {
-    return items.reduce((acc: Record<string, any[]>, item) => {
-      const area = item.area || "Overige"; // fallback if no area
+  const areaList = useMemo(() => {
+    const uniqueAreas = Array.from(new Set(data.map((item) => item.area).filter(Boolean)));
+    return ["Alle", ...uniqueAreas.sort()];
+  }, [data]);
+
+  const groupedData = useMemo(() => {
+    const filtered = areaTab === "Alle" 
+      ? data 
+      : data.filter(item => item.area === areaTab);
+
+    return filtered.reduce((acc: Record<string, any[]>, item) => {
+      const area = item.area || "Overige";
       if (!acc[area]) acc[area] = [];
       acc[area].push(item);
       return acc;
     }, {});
-  };
+  }, [data, areaTab]);
 
-  const groupedData = groupByArea(data);
   const sortedAreas = Object.keys(groupedData).sort();
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", pb: 4 }}>
+      {/* 1. Category Tabs */}
       <Tabs
         value={tab}
         onChange={(_, newValue) => setTab(newValue)}
         variant="scrollable"
         scrollButtons="auto"
-        centered={false}
+        allowScrollButtonsMobile
         sx={{
           mb: 2,
-          display: 'flex',
-          placeSelf: "center",
           borderBottom: 2,
-          borderColor: "rgb(170,24,44)",
+          borderColor: eftelingRed,
+          "& .MuiTabs-flexContainer": {
+            justifyContent: { xs: "flex-start", sm: "center" },
+          },
           "& .MuiTab-root": {
-            color: "rgb(170,24,44)",
+            color: eftelingRed,
             fontWeight: 700,
             fontSize: "1rem",
-            "&.Mui-selected": {
-              color: "rgb(170,24,44)",
-              fontWeight: 700,
-            },
+            "&.Mui-selected": { color: eftelingRed },
           },
-          "& .MuiTabs-indicator": {
-            backgroundColor: "rgb(170,24,44)",
-          },
+          "& .MuiTabs-indicator": { backgroundColor: eftelingRed },
         }}
       >
         {categories.map((category, idx) => (
@@ -93,10 +98,50 @@ export default function AttractionTabs({ onSelectAttraction }: AttractionTabsPro
         ))}
       </Tabs>
 
-      <Box sx={{ p: 2 }}>
+      {/* 2. Area Filter Pills */}
+      {!loading && data.length > 0 && (
+        <Tabs
+          value={areaTab}
+          onChange={(_, newValue) => setAreaTab(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          sx={{
+            mb: 4,
+            "& .MuiTabs-flexContainer": {
+              justifyContent: { xs: "flex-start", sm: "center" },
+            },
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontWeight: 600,
+              color: "#fff",
+              bgcolor: eftelingRed,
+              margin: 0.5,
+              padding: "6px 16px",
+              borderRadius: "20px",
+              minHeight: "36px",
+              fontSize: "0.85rem",
+              transition: "0.2s",
+              "&.Mui-selected": { 
+                color: eftelingRed, 
+                bgcolor: "#fff",
+                boxShadow: "0px 2px 4px rgba(0,0,0,0.1)" 
+              },
+            },
+            "& .MuiTabs-indicator": { display: 'none' }
+          }}
+        >
+          {areaList.map((area) => (
+            <Tab key={area} label={area} value={area} />
+          ))}
+        </Tabs>
+      )}
+
+      {/* 3. Content Area - Matching your Detail Page padding logic */}
+      <Box sx={{ px: { xs: 2, sm: 4, md: 8 } }}>
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4, height: '50vh', alignItems: 'center' }}>
-            <CircularProgress sx={{ color: "rgb(170,24,44)" }} />
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '40vh' }}>
+            <CircularProgress sx={{ color: eftelingRed }} />
           </Box>
         ) : data.length > 0 ? (
           sortedAreas.map((area) => (
@@ -104,26 +149,22 @@ export default function AttractionTabs({ onSelectAttraction }: AttractionTabsPro
               <Typography variant="h5" sx={{ mb: 3 }}>
                 <Divider
                   sx={{
-                    color: "rgb(170,24,44)",
+                    color: eftelingRed,
                     fontWeight: 'bold',
-                    "&::before, &::after": {
-                      borderTop: "2px solid rgb(170,24,44)",
-                    },
+                    fontSize: { xs: "1rem", sm: "1.25rem" },
+                    "&::before, &::after": { borderTop: `2px solid ${eftelingRed}` },
                   }}
                 >
                   {area.toUpperCase()}
                 </Divider>
               </Typography>
               
-              <Grid
-                container
-                spacing={4}
-                columns={{ xs: 12, sm: 12, md: 12 }}
-                sx={{placeContent: "center"}}
-              >
+              <Grid container spacing={3}>
                 {groupedData[area].map((item, idx) => (
-                  <Grid key={idx} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-                    {/* We pass the item to the onSelect function when clicked */}
+                  <Grid 
+                    key={idx} 
+                    size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                  >
                     <AttractionCard 
                       attraction={item} 
                       onSelect={(selected) => onSelectAttraction(selected)}
@@ -135,7 +176,7 @@ export default function AttractionTabs({ onSelectAttraction }: AttractionTabsPro
           ))
         ) : (
           <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
-            Geen gegevens gevonden voor {categories[tab]}.
+            Geen gegevens gevonden.
           </Typography>
         )}
       </Box>
