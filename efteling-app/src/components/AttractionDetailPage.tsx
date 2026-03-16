@@ -275,20 +275,37 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
                   sx={{ width: "100%", borderRadius: 3 }}
                 />
 
-                <Box
-                  sx={{
-                    position: "absolute",
-                    left: `${(coord.x / MAP_WIDTH) * 100}%`,
-                    top: `${(coord.y / MAP_HEIGHT) * 100}%`,
-                    transform: "translate(-50%, -50%)",
-                    width: 15,
-                    height: 15,
-                    borderRadius: "50%",
-                    bgcolor: eftelingRed,
-                    border: "3px solid white",
-                    boxShadow: 4
-                  }}
-                />
+<Box
+  sx={{
+    position: "absolute",
+    left: `${(coord.x / MAP_WIDTH) * 100}%`,
+    top: `${(coord.y / MAP_HEIGHT) * 100}%`,
+    transform: "translate(-50%, -50%)",
+    
+    // Scaling logic:
+    // 2vw means 2% of the screen width. 
+    // Adjust this number (e.g., 1.5vw or 3vw) to find your "sweet spot".
+    width: { xs: '1vw', sm: '2vw', md: '1.5vw' }, 
+    height: { xs: '1vw', sm: '2vw', md: '1.5vw' },
+    
+    // Safety boundaries
+    minWidth: "3px",
+    minHeight: "3px",
+    maxWidth: "30px",
+    maxHeight: "30px",
+
+    borderRadius: "50%",
+    bgcolor: eftelingRed,
+    border: { xs: "1.5px solid white", md: "3px solid white" }, // Thinner border on mobile
+    boxShadow: 4,
+    zIndex: 10,
+    cursor: "pointer",
+    transition: "transform 0.2s",
+    "&:hover": {
+      transform: "translate(-50%, -50%) scale(1.2)", // Subtle pop on hover
+    }
+  }}
+/>
               </Box>
             </Box>
           )}
