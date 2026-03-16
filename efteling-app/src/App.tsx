@@ -12,7 +12,7 @@ export default function App() {
     <>
       <CssBaseline />
       <Container 
-        maxWidth={false} 
+        maxWidth="xl" 
         sx={{ 
           py: 4, 
           px: { xs: 0, sm: 2, md: 4 } // Responsive padding

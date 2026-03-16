@@ -66,16 +66,18 @@ export default function AttractionCard({ attraction, onSelect }: AttractionCardP
   };
 
   return (
-    <Card 
-     onClick={handleCardClick} // Now TypeScript knows what onSelect is!
-      sx={{ 
-        borderRadius: 3, 
-        boxShadow: 3, 
-        cursor: 'pointer',
-        transition: '0.3s',
-        '&:hover': { transform: 'scale(1.02)' } 
-      }}
-    >
+    <Card
+  onClick={handleCardClick}
+  sx={{
+    width: "100%",
+    maxWidth: 420,
+    borderRadius: 3,
+    boxShadow: 3,
+    cursor: "pointer",
+    transition: "0.3s",
+    "&:hover": { transform: "scale(1.02)" }
+  }}
+>
       {attraction.image_url && (
         <CardMedia
           component="img"

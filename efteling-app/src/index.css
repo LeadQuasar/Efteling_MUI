@@ -25,13 +25,9 @@ a:hover {
 body {
   position: relative;
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100%;
+  min-height: 100vh;
   background-color: #fcf5ed !important;
-  display: flex;
-  width: fit-content;
 }
 
 body::before{
