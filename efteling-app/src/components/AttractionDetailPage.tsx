@@ -138,8 +138,6 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
 
           {/* Status badges */}
           <Stack direction="row" spacing={2} sx={{ mb: 3 }} useFlexGap flexWrap="wrap">
-            {attraction.category === "ATTRACTION" && attraction.state === "OPEN" && attraction.currentWaitTime !== undefined && (
-              <Chip
 
             {attraction.category === "ATTRACTION" &&
               attraction.state === "OPEN" &&
