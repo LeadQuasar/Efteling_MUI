@@ -142,7 +142,7 @@ export default function AttractionCard({ attraction, onSelect }: AttractionCardP
             />
           )}
           
-          <IconButton sx={{ mt: "0.75rem", bgcolor: "rgb(170,24,44)", marginLeft: "auto", "&:hover": { bgcolor: "rgb(140,20,35)" } }}>
+          <IconButton sx={{ mt: "0.75rem", padding: "5px", bgcolor: "rgb(170,24,44)", marginLeft: "auto", "&:hover": { bgcolor: "rgb(140,20,35)" } }}>
             <ArrowForwardIosIcon sx={{ color: "#fff", }}/>
           </IconButton>
         </Typography>
