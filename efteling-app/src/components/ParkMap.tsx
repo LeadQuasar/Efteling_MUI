@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Box, Typography, Popover, CircularProgress, IconButton, Chip, Stack } from "@mui/material";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import LocationPinIcon from '@mui/icons-material/LocationPin';
 import axios from "axios";
 import mapImg from "../assets/efteling_map.jpg";
 import { attractionCoordinates, MAP_WIDTH, MAP_HEIGHT } from "../constants/mapData";
@@ -9,7 +10,6 @@ interface ParkMapProps {
   onSelectAttraction: (attraction: any) => void;
 }
 
-// These keys must match the manual tags we add in useEffect
 const CATEGORY_MAP: Record<string, string> = {
   all: "Alle",
   ride: "Attracties",
@@ -38,7 +38,6 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
 
     Promise.all(endpoints.map(endpoint => 
       axios.get(endpoint.url).then(res => 
-        // We add the 'category' property ourselves so the filter works!
         res.data.map((item: any) => ({ ...item, category: endpoint.tag }))
       )
     ))
@@ -53,7 +52,6 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
       });
   }, []);
 
-  // Filter logic: uses the 'category' tag we added above
   const filteredData = useMemo(() => {
     if (filter === "all") return allData;
     return allData.filter(item => item.category === filter);
@@ -99,7 +97,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
               bgcolor: filter === key ? eftelingRed + '!important' : "white",
               color: filter === key ? "white" : eftelingRed,
               border: `2px solid ${eftelingRed}`,
-              fontWeight: filter === key ? "bold" : "bold",
+              fontWeight: "bold",
               fontSize: { xs: '0.7rem', md: '0.85rem' },
               height: { xs: 24, md: 32 },
             }}
@@ -115,6 +113,8 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           const attraction = filteredData.find(item => item.id === id);
           if (!attraction) return null;
 
+          const isActive = activeAttraction?.id === id;
+
           return (
             <Box
               key={id}
@@ -123,16 +123,45 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
                 position: "absolute",
                 left: `${(coord.x / MAP_WIDTH) * 100}%`,
                 top: `${(coord.y / MAP_HEIGHT) * 100}%`,
-                width: { xs: '5px', md: '10px' }, 
-                height: { xs: '5px', md: '10px' },
-                bgcolor: eftelingRed,
-                border: { xs: "0.5px solid white", md: "1.5px solid white" },
-                borderRadius: "50%",
-                transform: "translate(-50%, -50%)",
+                // Transform handles the positioning: 
+                // Dots are centered, Pins are bottom-aligned to the coord
+                transform: isActive ? "translate(-50%, -100%)" : "translate(-50%, -50%)",
                 cursor: "pointer",
-                zIndex: 10,
+                zIndex: isActive ? 100 : 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: "transform 0.2s ease-out",
               }}
-            />
+            >
+              {isActive ? (
+                <LocationPinIcon 
+                  sx={{ 
+                    color: eftelingRed, 
+                    fontSize: { xs: 24, md: 40 },
+                    filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
+                    // Keyframe animation for the "pop"
+                    animation: "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                    "@keyframes popIn": {
+                      "0%": { transform: "scale(0) translateY(20px)", opacity: 0 },
+                      "100%": { transform: "scale(1) translateY(0)", opacity: 1 }
+                    }
+                  }} 
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: { xs: '6px', md: '12px' }, 
+                    height: { xs: '6px', md: '12px' },
+                    bgcolor: eftelingRed,
+                    border: { xs: "1px solid white", md: "2px solid white" },
+                    borderRadius: "50%",
+                    boxShadow: "0px 1px 3px rgba(0,0,0,0.3)",
+                    '&:hover': { transform: 'scale(1.2)', transition: '0.2s' }
+                  }}
+                />
+              )}
+            </Box>
           );
         })}
 
@@ -148,8 +177,8 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
               borderRadius: { xs: 1.5, md: 4 }, 
               boxShadow: '0px 2px 8px rgba(0,0,0,0.15)',
               border: `1px solid ${eftelingRed}`,
-              transform: { xs: 'scale(0.7)', md: 'scale(1)' },
-              transformOrigin: 'bottom center',
+              // Offset slightly so it doesn't cover the Pin head
+              mt: -2.5, 
               maxWidth: { xs: '120px', md: '240px' }, 
               overflow: 'hidden'
             }
@@ -161,7 +190,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
                 {activeAttraction?.title}
               </Typography>
               {activeAttraction?.currentWaitTime !== undefined && (
-                <Typography sx={{ fontSize: { xs: '0.35rem', md: '0.65rem' }, color: 'text.secondary', mt: 0.1 }}>
+                <Typography sx={{ fontSize: { xs: '0.35rem', md: '0.65rem', fontWeight: 'bold' }, color: eftelingRed, mt: 0.1 }}>
                   {activeAttraction.currentWaitTime} min
                 </Typography>
               )}
