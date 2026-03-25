@@ -263,8 +263,8 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
                     ) : (
                       <Box
                         sx={{
-                          width: { xs: '6px', md: '12px' }, 
-                          height: { xs: '6px', md: '12px' },
+                          width: { xs: '4px', md: '12px' }, 
+                          height: { xs: '4px', md: '12px' },
                           bgcolor: eftelingRed,
                           border: { xs: "1px solid white", md: "2px solid white" },
                           borderRadius: "50%",
