@@ -166,7 +166,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
               color: filter === key ? "white" : eftelingRed,
               border: `2px solid ${eftelingRed}`,
               fontWeight: "bold",
-              fontSize: { xs: '0.7rem', md: '0.85rem' },
+              fontSize: { xs: '0.6rem', md: '0.85rem' },
               height: { xs: 24, md: 32 },
             }}
           />
