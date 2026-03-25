@@ -189,8 +189,8 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           minScale={1}
           maxScale={6}
           centerOnInit={true}
-          limitToBounds={true}          // Essential for preventing white space dragging
-          centerZoomedOut={true}        // Keeps the map in the middle at 1x scale
+          limitToBounds={true}
+          centerZoomedOut={true}
           doubleClick={{ disabled: false }}
           panning={{ velocityDisabled: true }}
         >
@@ -199,7 +199,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           <TransformComponent 
             wrapperStyle={{ 
               width: "100%", 
-              maxHeight: '80vh', // Adjust this based on your design
+              maxHeight: '80vh',
               overflow: 'hidden' 
             }}
             contentStyle={{ 
@@ -208,7 +208,6 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
               alignItems: 'center'
             }}
           >
-            {/* The coordinate container */}
             <Box sx={{ position: "relative", width: "100%" }}>
               <img 
                 src={mapImg} 
@@ -236,14 +235,12 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
                       position: "absolute",
                       left: `${(coord.x / MAP_WIDTH) * 100}%`,
                       top: `${(coord.y / MAP_HEIGHT) * 100}%`,
-                      // Pivot the pin so the tip is at the exact coordinate
                       transform: isActive ? "translate(-50%, -100%)" : "translate(-50%, -50%)",
                       cursor: "pointer",
                       zIndex: isActive ? 100 : 10,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      transition: "transform 0.2s ease-out",
                       pointerEvents: 'auto'
                     }}
                   >
@@ -251,25 +248,24 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
                       <LocationPinIcon 
                         sx={{ 
                           color: eftelingRed, 
-                          fontSize: { xs: 20, md: 40 },
+                          fontSize: { xs: 6, md: 18 },
                           filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
-                          animation: "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                          "@keyframes popIn": {
-                            "0%": { transform: "scale(0) translateY(20px)", opacity: 0 },
-                            "100%": { transform: "scale(1) translateY(0)", opacity: 1 }
-                          }
                         }} 
                       />
                     ) : (
                       <Box
                         sx={{
-                          width: { xs: '4px', md: '12px' }, 
-                          height: { xs: '4px', md: '12px' },
+                          width: 4,  // base size
+                          height: 4,
                           bgcolor: eftelingRed,
-                          border: { xs: "1px solid white", md: "2px solid white" },
+                          border: "1px solid white",
                           borderRadius: "50%",
                           boxShadow: "0px 1px 3px rgba(0,0,0,0.3)",
-                          '&:hover': { transform: 'scale(1.2)', transition: '0.2s' }
+                          transformOrigin: "center",
+                          transition: "transform 0.2s",
+                          // Responsive scaling
+                          transform: { xs: 'scale(0.5)', sm: 'scale(0.75)', md: 'scale(1)' },
+                          '&:hover': { transform: 'scale(1.5)' }
                         }}
                       />
                     )}
@@ -280,7 +276,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           </TransformComponent>
         </TransformWrapper>
 
-        {/* Popover stays fixed to the viewport relative to the pin */}
+        {/* Popover */}
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
@@ -290,11 +286,9 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           disableScrollLock
           PaperProps={{
             sx: { 
-              borderRadius: { xs: 1.5, md: 2 }, 
+              borderRadius: { xs: 4, md: 4 }, 
               boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
               border: `2px solid ${eftelingRed}`,
-              // Responsive margin to keep it perfectly above the pin head
-              mt: { xs: -0.5, md: -6 }, 
               minWidth: { xs: '120px', md: '200px' }, 
               overflow: 'hidden'
             }
