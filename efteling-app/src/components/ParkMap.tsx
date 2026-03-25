@@ -138,7 +138,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
                 <LocationPinIcon 
                   sx={{ 
                     color: eftelingRed, 
-                    fontSize: { xs: 24, md: 40 },
+                    fontSize: { xs: 16, md: 40 },
                     filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
                     // Keyframe animation for the "pop"
                     animation: "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
@@ -151,8 +151,8 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
               ) : (
                 <Box
                   sx={{
-                    width: { xs: '6px', md: '12px' }, 
-                    height: { xs: '6px', md: '12px' },
+                    width: { xs: '4px', md: '12px' }, 
+                    height: { xs: '4px', md: '12px' },
                     bgcolor: eftelingRed,
                     border: { xs: "1px solid white", md: "2px solid white" },
                     borderRadius: "50%",
@@ -178,7 +178,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
               boxShadow: '0px 2px 8px rgba(0,0,0,0.15)',
               border: `1px solid ${eftelingRed}`,
               // Offset slightly so it doesn't cover the Pin head
-              mt: -2.5, 
+              mt: -1.2, 
               maxWidth: { xs: '120px', md: '240px' }, 
               overflow: 'hidden'
             }
@@ -186,17 +186,17 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.5, p: { xs: 0.3, md: 0.8 }, bgcolor: "#fff" }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="caption" noWrap sx={{ fontWeight: 'bold', color: eftelingRed, fontSize: { xs: '0.45rem', md: '0.85rem' }, display: 'block', lineHeight: 1 }}>
+              <Typography variant="caption" noWrap sx={{ fontWeight: 'bold', color: eftelingRed, fontSize: { xs: '0.25rem', md: '0.85rem' }, display: 'block', lineHeight: 1 }}>
                 {activeAttraction?.title}
               </Typography>
               {activeAttraction?.currentWaitTime !== undefined && (
-                <Typography sx={{ fontSize: { xs: '0.35rem', md: '0.65rem', fontWeight: 'bold' }, color: eftelingRed, mt: 0.1 }}>
+                <Typography sx={{ fontSize: { xs: '0.22rem', md: '0.65rem', fontWeight: 'bold' }, color: eftelingRed, mt: 0.1 }}>
                   {activeAttraction.currentWaitTime} min
                 </Typography>
               )}
             </Box>
             <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleClosePopover(); onSelectAttraction(activeAttraction); }}
-              sx={{ bgcolor: eftelingRed, color: 'white', width: { xs: 12, md: 24 }, height: { xs: 12, md: 24 }, p: 0, '& .MuiSvgIcon-root': { fontSize: { xs: 6, md: 12 } } }}>
+              sx={{ bgcolor: eftelingRed, color: 'white', width: { xs: 8, md: 24 }, height: { xs: 8, md: 24 }, p: 0, '& .MuiSvgIcon-root': { fontSize: { xs: 5, md: 12 } } }}>
               <ArrowForwardIosIcon />
             </IconButton>
           </Box>
