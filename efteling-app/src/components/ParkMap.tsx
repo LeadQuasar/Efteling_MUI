@@ -394,7 +394,6 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           <Box
             sx={{
               width: 40,
-              height: 4,
               bgcolor: "#ccc",
               borderRadius: 2,
               mx: "auto",
@@ -418,6 +417,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
             <Chip label={activeAttraction.category} size="small" />
           </Stack>
+          
 
           <Box
             sx={{
