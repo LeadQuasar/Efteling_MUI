@@ -39,10 +39,10 @@ interface ParkMapProps {
 
 const CATEGORY_MAP: Record<string, string> = {
   all: "Alle",
-  ride: "Attracties",
-  show: "Shows",
-  restaurant: "Eten & Drinken",
-  shop: "Winkels",
+  Attractie: "Attracties",
+  Show: "Shows",
+  Restaurant: "Eten & Drinken",
+  Winkel: "Winkels",
 };
 
 const eftelingRed = "rgb(170,24,44)";
@@ -175,10 +175,10 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
   /* ----------------------------- Fetch Data ----------------------------- */
   useEffect(() => {
     const endpoints = [
-      { url: "https://tp.arendz.nl/parks/efteling/rides", tag: "ride" },
-      { url: "https://tp.arendz.nl/parks/efteling/shows", tag: "show" },
-      { url: "https://tp.arendz.nl/parks/efteling/restaurants", tag: "restaurant" },
-      { url: "https://tp.arendz.nl/parks/efteling/shops", tag: "shop" },
+      { url: "https://tp.arendz.nl/parks/efteling/rides", tag: "Attractie" },
+      { url: "https://tp.arendz.nl/parks/efteling/shows", tag: "Show" },
+      { url: "https://tp.arendz.nl/parks/efteling/restaurants", tag: "Restaurant" },
+      { url: "https://tp.arendz.nl/parks/efteling/shops", tag: "Winkel" },
     ];
 
     Promise.all(

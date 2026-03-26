@@ -45,9 +45,9 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
-      case "RESTAURANT": return "Restaurant";
-      case "SHOP": return "Winkel";
-      case "SHOW": return "Parkshow";
+      case "RESTAURANT":case "Restaurant": return "Restaurant";
+      case "SHOP":case "Winkel": return "Winkel";
+      case "SHOW":case "Show": return "Parkshow";
       default: return "Attractie";
     }
   };
@@ -123,9 +123,9 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
 
             <Chip
               icon={
-                attraction.category === "RESTAURANT"
+                attraction.category === "RESTAURANT" || attraction.category === "Restaurant"
                   ? <RestaurantIcon sx={{ color: "#fff !important" }} />
-                  : attraction.category === "SHOP"
+                  : attraction.category === "SHOP" || attraction.category === "Winkel"
                     ? <StorefrontIcon sx={{ color: "#fff !important" }} />
                     : undefined
               }
@@ -151,7 +151,7 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
           </Typography>
 
           {/* RESTAURANT TIMES */}
-          {attraction.category === "RESTAURANT" && attraction.openingTimes && (
+          {(attraction.category === "RESTAURANT" || attraction.category === "Restaurant") && attraction.openingTimes && (
             <Box sx={{ mt: 5 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
                 Openingstijden vandaag:
@@ -209,7 +209,7 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
           )}
 
           {/* SHOW TIMES */}
-          {attraction.category === "SHOW" && attraction.showTimes?.showTimes && (
+          {(attraction.category === "SHOW" || attraction.category === "Show" ) && attraction.showTimes?.showTimes && (
             <Box sx={{ mt: 5 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
                 Showtijden:
