@@ -2,12 +2,15 @@ import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
-  Popover,
   CircularProgress,
   IconButton,
   Chip,
   Stack,
   Tooltip,
+  SwipeableDrawer,
+  Popover,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   TransformWrapper,
@@ -57,7 +60,11 @@ const MapControls = React.memo(() => {
       <Tooltip title="Zoom In" placement="left">
         <IconButton
           onClick={() => zoomIn()}
-          sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+          sx={{
+            bgcolor: "white",
+            boxShadow: 2,
+            "&:hover": { bgcolor: "#f5f5f5" },
+          }}
         >
           <AddIcon sx={{ color: eftelingRed }} />
         </IconButton>
@@ -66,7 +73,11 @@ const MapControls = React.memo(() => {
       <Tooltip title="Zoom Out" placement="left">
         <IconButton
           onClick={() => zoomOut()}
-          sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+          sx={{
+            bgcolor: "white",
+            boxShadow: 2,
+            "&:hover": { bgcolor: "#f5f5f5" },
+          }}
         >
           <RemoveIcon sx={{ color: eftelingRed }} />
         </IconButton>
@@ -75,7 +86,11 @@ const MapControls = React.memo(() => {
       <Tooltip title="Reset Map" placement="left">
         <IconButton
           onClick={() => resetTransform()}
-          sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+          sx={{
+            bgcolor: "white",
+            boxShadow: 2,
+            "&:hover": { bgcolor: "#f5f5f5" },
+          }}
         >
           <RestartAltIcon sx={{ color: eftelingRed }} />
         </IconButton>
@@ -89,7 +104,7 @@ interface MarkerProps {
   coord: { x: number; y: number };
   attraction: any;
   isActive: boolean;
-  onClick: (e: React.MouseEvent<HTMLElement>, attraction: any) => void;
+  onClick: (attraction: any, event: React.MouseEvent<HTMLElement>) => void;
 }
 
 const MapMarker = React.memo(function MapMarker({
@@ -102,7 +117,7 @@ const MapMarker = React.memo(function MapMarker({
 
   return (
     <Box
-      onClick={(e) => onClick(e, attraction)}
+      onClick={(e) => onClick(attraction, e)}
       sx={{
         position: "absolute",
         left: `${(coord.x / MAP_WIDTH) * 100}%`,
@@ -122,7 +137,7 @@ const MapMarker = React.memo(function MapMarker({
         <LocationPinIcon
           sx={{
             color: eftelingRed,
-            fontSize: { xs: 6, md: 18 },
+            fontSize: { xs: 12, md: 18 },
             filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
           }}
         />
@@ -151,9 +166,11 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
   const [allData, setAllData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [activeAttraction, setActiveAttraction] = useState<any | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const theme = useTheme();
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
 
   /* ----------------------------- Fetch Data ----------------------------- */
   useEffect(() => {
@@ -204,16 +221,28 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
   }, [allData, filter]);
 
   /* ----------------------------- Handlers ----------------------------- */
-  const handleTogglePopover = (
-    event: React.MouseEvent<HTMLElement>,
-    attraction: any
+  const handleMarkerClick = (
+    attraction: any,
+    event: React.MouseEvent<HTMLElement>
   ) => {
-    setAnchorEl(event.currentTarget);
+    // Prevent the map zoom library from intercepting this click
+    event.stopPropagation();
+    event.preventDefault();
+
     setActiveAttraction(attraction);
+    if (isLargeScreen && event.currentTarget instanceof HTMLElement) {
+      setAnchorEl(event.currentTarget);
+    } else {
+      setAnchorEl(null);
+    }
   };
 
   const handleClosePopover = () => {
+    setActiveAttraction(null);
     setAnchorEl(null);
+  };
+
+  const handleCloseDrawer = () => {
     setActiveAttraction(null);
   };
 
@@ -280,6 +309,9 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           limitToBounds
           panning={{ velocityDisabled: true }}
           wheel={{ step: 0.1 }}
+          // Close popover when starting to interact with map to prevent "contains" errors
+          onZoomStart={handleClosePopover}
+          onPanningStart={handleClosePopover}
         >
           <MapControls />
 
@@ -308,83 +340,183 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
                   coord={coord}
                   attraction={filteredDataMap.get(id)}
                   isActive={activeAttraction?.id === id}
-                  onClick={handleTogglePopover}
+                  onClick={handleMarkerClick}
                 />
               ))}
             </Box>
           </TransformComponent>
         </TransformWrapper>
 
-        {/* Popover */}
-        <Popover
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          onClose={handleClosePopover}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          transformOrigin={{ vertical: "bottom", horizontal: "center" }}
-          disableScrollLock
-          PaperProps={{
-            sx: {
-              borderRadius: 4,
-              boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
-              border: `2px solid ${eftelingRed}`,
-              minWidth: { xs: "120px", md: "200px" },
-              overflow: "hidden",
-            },
+        {/* Drawer for small screens */}
+        {!isLargeScreen && (
+          <SwipeableDrawer
+    anchor="bottom"
+    open={Boolean(activeAttraction)}
+    onClose={handleCloseDrawer}
+    onOpen={() => {}}
+    disableDiscovery
+    disableBackdropTransition
+    ModalProps={{ hideBackdrop: true, keepMounted: true }}
+    sx={{ pointerEvents: "none" }}
+    PaperProps={{
+      sx: {
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        border: `2px solid ${eftelingRed}`,
+        maxHeight: "40vh",
+        pointerEvents: "auto",
+      },
+    }}
+  >
+    {activeAttraction && (
+      <Box sx={{ p: 2, pointerEvents: "auto", display: "flex", gap: 2 }}>
+        <Box
+          sx={{
+            width: { xs: 100, sm: 120, md: 150 },
+            height: { xs: 100, sm: 120, md: 150 },
+            flexShrink: 0,
           }}
         >
+          <img
+            src={activeAttraction.image_url || "/placeholder.jpg"}
+            alt={activeAttraction.title}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              borderRadius: 12,
+            }}
+          />
+        </Box>
+
+        <Box sx={{ flexGrow: 1, position: "relative" }}>
+          {/* Centered Drag Handle / Visual Indicator */}
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 1,
-              p: 1,
-              bgcolor: "#fff",
+              width: 40,
+              height: 4,
+              bgcolor: "#ccc",
+              borderRadius: 2,
+              mx: "auto",
+              mb: 1
+            }}
+          />
+
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: eftelingRed }}>
+              {activeAttraction.title}
+            </Typography>
+            {/* Close button removed from here */}
+          </Stack>
+
+          {activeAttraction.currentWaitTime !== undefined && (
+            <Typography sx={{ fontWeight: 500 }}>
+              Wachttijd: {activeAttraction.currentWaitTime} minuten
+            </Typography>
+          )}
+
+          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+            <Chip label={activeAttraction.category} size="small" />
+          </Stack>
+
+          <Box
+            sx={{
+              position: "absolute",
+              right: 0,
+              bottom: 0, // Changed from top 50% for a cleaner look without the X icon
             }}
           >
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography
-                variant="body2"
-                noWrap
-                sx={{
-                  fontWeight: "bold",
-                  color: eftelingRed,
-                  fontSize: { xs: "0.75rem", md: "0.9rem" },
-                }}
-              >
-                {activeAttraction?.title}
-              </Typography>
-
-              {activeAttraction?.currentWaitTime !== undefined && (
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#666", fontWeight: 600, display: "block" }}
-                >
-                  {activeAttraction.currentWaitTime} min wachttijd
-                </Typography>
-              )}
-            </Box>
-
             <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClosePopover();
-                onSelectAttraction(activeAttraction);
-              }}
+              onClick={() => onSelectAttraction(activeAttraction)}
               sx={{
                 bgcolor: eftelingRed,
                 color: "white",
                 "&:hover": { bgcolor: "#8e1424" },
-                width: 24,
-                height: 24,
               }}
             >
-              <ArrowForwardIosIcon sx={{ fontSize: 12 }} />
+              <ArrowForwardIosIcon />
             </IconButton>
           </Box>
-        </Popover>
+        </Box>
+      </Box>
+    )}
+  </SwipeableDrawer>
+        )}
+
+        {/* Popover for large screens */}
+        {isLargeScreen && activeAttraction && anchorEl instanceof HTMLElement && (
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handleClosePopover}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            transformOrigin={{ vertical: "bottom", horizontal: "center" }}
+            disableScrollLock
+            // Robustness fixes for "contains" error
+            disableRestoreFocus
+            disableAutoFocus
+            PaperProps={{
+              sx: {
+                borderRadius: 4,
+                boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
+                border: `2px solid ${eftelingRed}`,
+                minWidth: "200px",
+                overflow: "hidden",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 1,
+                p: 1,
+                bgcolor: "#fff",
+              }}
+            >
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  variant="body2"
+                  noWrap
+                  sx={{
+                    fontWeight: "bold",
+                    color: eftelingRed,
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {activeAttraction.title}
+                </Typography>
+                {activeAttraction.currentWaitTime !== undefined && (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "#666", fontWeight: "600", display: "block" }}
+                  >
+                    {activeAttraction.currentWaitTime} min wachttijd
+                  </Typography>
+                )}
+              </Box>
+
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClosePopover();
+                  onSelectAttraction(activeAttraction);
+                }}
+                sx={{
+                  bgcolor: eftelingRed,
+                  color: "white",
+                  "&:hover": { bgcolor: "#8e1424" },
+                  width: 24,
+                  height: 24,
+                }}
+              >
+                <ArrowForwardIosIcon sx={{ fontSize: 12 }} />
+              </IconButton>
+            </Box>
+          </Popover>
+        )}
       </Box>
     </Box>
   );
