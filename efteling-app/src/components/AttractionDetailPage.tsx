@@ -111,7 +111,7 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
           {/* Status badges */}
           <Stack direction="row" spacing={2} sx={{ mb: 3 }} useFlexGap flexWrap="wrap">
 
-            {attraction.category === "ATTRACTION" &&
+            {(attraction.category === "ATTRACTION" || attraction.category === "Attractie") &&
               attraction.state === "OPEN" &&
               attraction.currentWaitTime !== undefined && (
                 <Chip
@@ -180,7 +180,7 @@ export default function AttractionDetailPage({ attraction, onBack }: AttractionD
           )}
 
           {/* ATTRACTION REQUIREMENTS */}
-          {attraction.category === "ATTRACTION" && (
+          {(attraction.category === "ATTRACTION" || attraction.category === "Attractie") && (
             <Box sx={{ mt: 5 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
                 Toegankelijkheid

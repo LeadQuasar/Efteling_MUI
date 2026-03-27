@@ -415,7 +415,16 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
           )}
 
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            <Chip label={activeAttraction.category} size="small" />
+            <Chip label={activeAttraction.category} sx={{ bgcolor: eftelingRed,
+                color: "white",}} />
+            <Chip
+              label={activeAttraction.state === "OPEN" ? "Geopend" : "Gesloten"}
+              color={activeAttraction.state === "OPEN" ? "success" : "error"}
+              sx={{ fontWeight: "bold" }}
+            />
+          </Stack>
+          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+            
           </Stack>
           
 
@@ -423,7 +432,7 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
             sx={{
               position: "absolute",
               right: 0,
-              bottom: 0, // Changed from top 50% for a cleaner look without the X icon
+              bottom: 25, // Changed from top 50% for a cleaner look without the X icon
             }}
           >
             <IconButton
