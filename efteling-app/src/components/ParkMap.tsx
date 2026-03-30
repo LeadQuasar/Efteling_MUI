@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
-  CircularProgress,
   IconButton,
   Chip,
   Stack,
@@ -17,6 +16,7 @@ import {
   TransformComponent,
   useControls,
 } from "react-zoom-pan-pinch";
+import GlowingLogoLoader from "./GlowingLogoLoader";
 
 // Icons
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -190,6 +190,8 @@ const MapMarker = React.memo(function MapMarker({
   );
 });
 
+
+
 /* ----------------------------- Main Component ----------------------------- */
 export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
   const [allData, setAllData] = useState<any[]>([]);
@@ -275,13 +277,24 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
     setActiveAttraction(null);
   };
 
-  /* ----------------------------- Loading ----------------------------- */
-  if (loading)
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 10 }}>
-        <CircularProgress sx={{ color: eftelingRed }} />
-      </Box>
-    );
+/* ----------------------------- Loading ----------------------------- */
+if (loading)
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        minHeight: "70vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#fcf5ed",
+        position: "relative",
+    zIndex: 1,
+      }}
+    >
+      <GlowingLogoLoader />
+    </Box>
+  );
 
   /* ----------------------------- Render ----------------------------- */
   return (
