@@ -166,7 +166,7 @@ const MapMarker = React.memo(function MapMarker({
             boxShadow: "0px 1px 3px rgba(0,0,0,0.3)",
             transformOrigin: "center",
             transition: "transform 0.2s",
-            transform: { xs: "scale(0.5)", sm: "scale(0.75)", md: "scale(1)" },
+            transform: { xs: "scale(0.5)", sm: "scale(0.75)", md: "scale(0.75)" },
             "&:hover": { transform: "scale(1.5)" },
             // width: 4,
             // height: 4,
