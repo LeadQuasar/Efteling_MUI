@@ -117,28 +117,42 @@ const MapMarker = React.memo(function MapMarker({
 
   return (
     <Box
-      onClick={(e) => onClick(attraction, e)}
-      sx={{
-        position: "absolute",
-        left: `${(coord.x / MAP_WIDTH) * 100}%`,
-        top: `${(coord.y / MAP_HEIGHT) * 100}%`,
-        transform: isActive
-          ? "translate(-50%, -100%)"
-          : "translate(-50%, -50%)",
-        cursor: "pointer",
-        zIndex: isActive ? 100 : 10,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        pointerEvents: "auto",
-      }}
-    >
+  onClick={(e) => onClick(attraction, e)}
+  sx={{
+    position: "absolute",
+    left: `${(coord.x / MAP_WIDTH) * 100}%`,
+    top: `${(coord.y / MAP_HEIGHT) * 100}%`,
+    transform: isActive
+      ? "translate(-50%, -100%)"
+      : "translate(-50%, -50%)",
+    cursor: "pointer",
+    zIndex: isActive ? 100 : 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "auto",
+
+    outline: "none",             // remove focus outline
+    "&:focus": { outline: "none" },
+    "&:active": { background: "transparent" }, // remove click background
+    userSelect: "none",           // optional: prevent text selection
+    WebkitTapHighlightColor: "transparent", // for mobile
+  }}
+  tabIndex={-1}  // makes Box not focusable for keyboard/tab
+>
       {isActive ? (
         <LocationPinIcon
           sx={{
             color: eftelingRed,
             fontSize: { xs: 12, md: 18 },
             filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
+            transform: "scale(0)",               // start tiny
+            transformOrigin: "bottom center",    // grow from the bottom
+            animation: "growFromBottom 0.3s forwards",
+            "@keyframes growFromBottom": {
+              "0%": { transform: "scale(0)" },
+              "100%": { transform: "scale(1)" },
+            },
           }}
         />
       ) : (
@@ -154,6 +168,21 @@ const MapMarker = React.memo(function MapMarker({
             transition: "transform 0.2s",
             transform: { xs: "scale(0.5)", sm: "scale(0.75)", md: "scale(1)" },
             "&:hover": { transform: "scale(1.5)" },
+            // width: 4,
+            // height: 4,
+            // bgcolor: eftelingRed,
+            // border: "1px solid white",
+            // borderRadius: "50%",
+            // boxShadow: "0px 1px 3px rgba(0,0,0,0.3)",
+            // transformOrigin: "center",
+            // transition: "transform 0.2s",
+            // transform: { xs: "scale(0.5)", sm: "scale(0.75)", md: "scale(1)" },
+            // animation: "pulse 1.5s infinite ease-in-out",
+            // "&:hover": { transform: "scale(1)" },
+            // "@keyframes pulse": {
+            //   "0%": { transform: "scale(0.75)" },
+            //   "50%": { transform: "scale(1)" },
+            //   "100%": { transform: "scale(0.75)" },
           }}
         />
       )}
@@ -350,106 +379,108 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
         {/* Drawer for small screens */}
         {!isLargeScreen && (
           <SwipeableDrawer
-    anchor="bottom"
-    open={Boolean(activeAttraction)}
-    onClose={handleCloseDrawer}
-    onOpen={() => {}}
-    disableDiscovery
-    disableBackdropTransition
-    ModalProps={{ hideBackdrop: true, keepMounted: true }}
-    sx={{ pointerEvents: "none" }}
-    PaperProps={{
-      sx: {
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        border: `2px solid ${eftelingRed}`,
-        maxHeight: "40vh",
-        pointerEvents: "auto",
-      },
-    }}
-  >
-    {activeAttraction && (
-      <Box sx={{ p: 2, pointerEvents: "auto", display: "flex", gap: 2 }}>
-        <Box
-          sx={{
-            width: { xs: 100, sm: 120, md: 150 },
-            height: { xs: 100, sm: 120, md: 150 },
-            flexShrink: 0,
-          }}
-        >
-          <img
-            src={activeAttraction.image_url || "/placeholder.jpg"}
-            alt={activeAttraction.title}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderRadius: 12,
-            }}
-          />
-        </Box>
-
-        <Box sx={{ flexGrow: 1, position: "relative" }}>
-          {/* Centered Drag Handle / Visual Indicator */}
-          <Box
-            sx={{
-              width: 40,
-              bgcolor: "#ccc",
-              borderRadius: 2,
-              mx: "auto",
-              mb: 1
-            }}
-          />
-
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: "bold", color: eftelingRed }}>
-              {activeAttraction.title}
-            </Typography>
-            {/* Close button removed from here */}
-          </Stack>
-
-          {activeAttraction.currentWaitTime !== undefined && (
-            <Typography sx={{ fontWeight: 500 }}>
-              Wachttijd: {activeAttraction.currentWaitTime} minuten
-            </Typography>
-          )}
-
-          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            <Chip label={activeAttraction.category} sx={{ bgcolor: eftelingRed,
-                color: "white",}} />
-            <Chip
-              label={activeAttraction.state === "OPEN" ? "Geopend" : "Gesloten"}
-              color={activeAttraction.state === "OPEN" ? "success" : "error"}
-              sx={{ fontWeight: "bold" }}
-            />
-          </Stack>
-          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            
-          </Stack>
-          
-
-          <Box
-            sx={{
-              position: "absolute",
-              right: 0,
-              bottom: 25, // Changed from top 50% for a cleaner look without the X icon
+            anchor="bottom"
+            open={Boolean(activeAttraction)}
+            onClose={handleCloseDrawer}
+            onOpen={() => { }}
+            disableDiscovery
+            disableBackdropTransition
+            ModalProps={{ hideBackdrop: true, keepMounted: true }}
+            sx={{ pointerEvents: "none" }}
+            PaperProps={{
+              sx: {
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                border: `2px solid ${eftelingRed}`,
+                maxHeight: "40vh",
+                pointerEvents: "auto",
+              },
             }}
           >
-            <IconButton
-              onClick={() => onSelectAttraction(activeAttraction)}
-              sx={{
-                bgcolor: eftelingRed,
-                color: "white",
-                "&:hover": { bgcolor: "#8e1424" },
-              }}
-            >
-              <ArrowForwardIosIcon />
-            </IconButton>
-          </Box>
-        </Box>
-      </Box>
-    )}
-  </SwipeableDrawer>
+            {activeAttraction && (
+              <Box sx={{ p: 2, pointerEvents: "auto", display: "flex", gap: 2 }}>
+                <Box
+                  sx={{
+                    width: { xs: 100, sm: 120, md: 150 },
+                    height: { xs: 100, sm: 120, md: 150 },
+                    flexShrink: 0,
+                  }}
+                >
+                  <img
+                    src={activeAttraction.image_url || "/placeholder.jpg"}
+                    alt={activeAttraction.title}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: 12,
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ flexGrow: 1, position: "relative" }}>
+                  {/* Centered Drag Handle / Visual Indicator */}
+                  <Box
+                    sx={{
+                      width: 40,
+                      bgcolor: "#ccc",
+                      borderRadius: 2,
+                      mx: "auto",
+                      mb: 1
+                    }}
+                  />
+
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6" sx={{ fontWeight: "bold", color: eftelingRed }}>
+                      {activeAttraction.title}
+                    </Typography>
+                    {/* Close button removed from here */}
+                  </Stack>
+
+                  {activeAttraction.currentWaitTime !== undefined && (
+                    <Typography sx={{ fontWeight: 500 }}>
+                      Wachttijd: {activeAttraction.currentWaitTime} minuten
+                    </Typography>
+                  )}
+
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    <Chip label={activeAttraction.category} sx={{
+                      bgcolor: eftelingRed,
+                      color: "white",
+                    }} />
+                    <Chip
+                      label={activeAttraction.state === "OPEN" ? "Geopend" : "Gesloten"}
+                      color={activeAttraction.state === "OPEN" ? "success" : "error"}
+                      sx={{ fontWeight: "bold" }}
+                    />
+                  </Stack>
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+
+                  </Stack>
+
+
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      right: 0,
+                      bottom: 25, // Changed from top 50% for a cleaner look without the X icon
+                    }}
+                  >
+                    <IconButton
+                      onClick={() => onSelectAttraction(activeAttraction)}
+                      sx={{
+                        bgcolor: eftelingRed,
+                        color: "white",
+                        "&:hover": { bgcolor: "#8e1424" },
+                      }}
+                    >
+                      <ArrowForwardIosIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </SwipeableDrawer>
         )}
 
         {/* Popover for large screens */}
