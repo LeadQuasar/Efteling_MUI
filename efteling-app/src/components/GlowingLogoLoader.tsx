@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { keyframes } from "@emotion/react";
 import eftelinglogo from "../assets/efteling.png";
 
-// 1️⃣ Glowing pulse animation for the logo
+// Glowing pulse
 const pulseGlow = keyframes`
   0%, 100% {
     box-shadow: 
@@ -18,25 +18,24 @@ const pulseGlow = keyframes`
   }
 `;
 
-// 2️⃣ Gentle floating animation
+// Floating animation
 const float = keyframes`
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-12px); }
 `;
 
-// 3️⃣ Twinkle animation for sparkles
+// Twinkle
 const twinkle = keyframes`
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.3; transform: scale(0.6); }
 `;
 
-// 4️⃣ Orbit Animation (The Rotation)
+// Orbit
 const orbitRotate = keyframes`
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 `;
 
-// Sparkle positions (Relative to center)
 const sparkles = [
   { top: "-20px", left: "10px", size: 6, duration: 2 },
   { top: "40px", left: "130px", size: 5, duration: 3 },
@@ -47,46 +46,40 @@ const sparkles = [
 const GlowingLogoLoader = () => {
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="60vh"
-      position="relative"
-      sx={{ overflow: "hidden", backgroundColor: "transparent" }} // Transparent background
+      sx={{
+        position: "relative",
+        width: 240,
+        height: 240,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      {/* Soft mist/vignette background */}
+      {/* Aura */}
       <Box
         sx={{
           position: "absolute",
-          width: "100%",
-          height: "100%",
-          background: "radial-gradient(circle, rgba(50,20,35,0.2), transparent 70%)",
-          zIndex: 0,
-        }}
-      />
-
-      {/* Magical aura behind the logo */}
-      <Box
-        sx={{
-          position: "absolute",
-          width: 180,
-          height: 180,
+          width: 200,
+          height: 200,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(255,180,100,0.15), transparent 70%)",
-          filter: "blur(30px)",
+          background:
+            "radial-gradient(circle, rgba(255,180,100,0.2), transparent 70%)",
+          filter: "blur(25px)",
           zIndex: 1,
         }}
       />
 
-      {/* Main Container for Logo and Orbiting Elements */}
-      <Box 
-        position="relative" 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center"
-        sx={{ animation: `${float} 3s ease-in-out infinite` }}
+      {/* Floating container */}
+      <Box
+        sx={{
+          position: "relative",
+          animation: `${float} 3s ease-in-out infinite`,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
-        {/* The Orbiting Particle */}
+        {/* Orbit */}
         <Box
           sx={{
             position: "absolute",
@@ -94,11 +87,11 @@ const GlowingLogoLoader = () => {
             height: 220,
             borderRadius: "50%",
             animation: `${orbitRotate} 4s linear infinite`,
-            zIndex: 4,
             display: "flex",
             justifyContent: "center",
             alignItems: "flex-start",
             pointerEvents: "none",
+            zIndex: 3,
           }}
         >
           <Box
@@ -112,7 +105,7 @@ const GlowingLogoLoader = () => {
           />
         </Box>
 
-        {/* The Logo */}
+        {/* Logo */}
         <Box
           component="img"
           src={eftelinglogo}
@@ -127,7 +120,7 @@ const GlowingLogoLoader = () => {
           }}
         />
 
-        {/* Sparkles clustered around the logo */}
+        {/* Sparkles */}
         {sparkles.map((sparkle, idx) => (
           <Box
             key={idx}
@@ -140,7 +133,7 @@ const GlowingLogoLoader = () => {
               borderRadius: "50%",
               background: "radial-gradient(circle, #fff, #ffd700)",
               animation: `${twinkle} ${sparkle.duration}s ease-in-out infinite`,
-              zIndex: 3,
+              zIndex: 4,
             }}
           />
         ))}
