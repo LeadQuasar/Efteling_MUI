@@ -16,7 +16,7 @@ export default function App() {
   // Helper to handle selection from either the list or the map
   const handleSelect = (attr: any) => {
     setSelectedAttraction(attr);
-    setIsMapView(false); // Close map when looking at details
+    // setIsMapView(false); // Close map when looking at details
   };
 
   return (
