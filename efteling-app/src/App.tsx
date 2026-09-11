@@ -38,77 +38,94 @@ export default function App() {
       <CssBaseline />
 
       {/* Loader Overlay */}
-{showLoader && (
-  <Box
-    sx={{
-      position: "fixed",
-      inset: 0,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "#fcf5ed",
-      zIndex: 2000,
-      transition: "opacity 0.6s ease-in-out",
-      opacity: loading ? 1 : 0,
-
-      // grain overlay
-      "&::before": {
-        content: '""',
-        position: "absolute",
-        inset: 0,
-        backgroundImage: `url(${grain})`,
-        backgroundSize: "10rem",
-        opacity: 0.06,
-        pointerEvents: "none",
-        zIndex: 0,
-      },
-    }}
-  >
-    <Box sx={{ position: "relative", zIndex: 1 }}>
-      <GlowingLogoLoader />
-    </Box>
-  </Box>
-)}
-
-      {!loading && (
-        <Container
-          maxWidth="xl"
+      {showLoader && (
+        <Box
           sx={{
-            py: 4,
-            px: { xs: 0, sm: 2, md: 4 },
-            minHeight: "100vh",
+            position: "fixed",
+            inset: 0,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#fcf5ed",
+            zIndex: 2000,
+            transition: "opacity 0.6s ease-in-out",
+            opacity: loading ? 1 : 0,
+
+            // grain overlay
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `url(${grain})`,
+              backgroundSize: "10rem",
+              opacity: 0.06,
+              pointerEvents: "none",
+              zIndex: 0,
+            },
           }}
         >
-          {!selectedAttraction && (
-            <Avatar
-              src={eftelinglogo}
-              sx={{
-                width: 100,
-                height: 100,
-                mx: "auto",
-                display: "block",
-                mb: 4,
-              }}
-            />
-          )}
+          <Box sx={{ position: "relative", zIndex: 1 }}>
+            <GlowingLogoLoader />
+          </Box>
+        </Box>
+      )}
 
+      {!loading && (
+        <>
           {/* DETAIL PAGE */}
           {selectedAttraction ? (
-            <AttractionDetailPage
-              attraction={selectedAttraction}
-              onBack={() => setSelectedAttraction(null)}
-            />
-          ) : (
-            <Box>
-              {isMapView ? (
-                <ParkMap onSelectAttraction={handleSelect} />
-              ) : (
-                <AttractionTabs onSelectAttraction={handleSelect} />
-              )}
+            <Container
+              maxWidth="xl"
+              sx={{
+                py: 4,
+                px: { xs: 0, sm: 2, md: 4 },
+                minHeight: "100vh",
+              }}
+            >
+              <AttractionDetailPage
+                attraction={selectedAttraction}
+                onBack={() => setSelectedAttraction(null)}
+              />
+            </Container>
+          ) : isMapView ? (
+            /* FULL-SCREEN MAP MODE — bypasses the padded Container entirely
+               so the map can stretch edge-to-edge on mobile */
+            <Box
+              sx={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 10,
+              }}
+            >
+              <ParkMap onSelectAttraction={handleSelect} fullScreen />
             </Box>
+          ) : (
+            <Container
+              maxWidth="xl"
+              sx={{
+                py: 4,
+                px: { xs: 0, sm: 2, md: 4 },
+                minHeight: "100vh",
+              }}
+            >
+              <Avatar
+                src={eftelinglogo}
+                sx={{
+                  width: 100,
+                  height: 100,
+                  mx: "auto",
+                  display: "block",
+                  mb: 4,
+                }}
+              />
+              <Box>
+                <AttractionTabs onSelectAttraction={handleSelect} />
+              </Box>
+            </Container>
           )}
 
-          {/* FLOATING BUTTON */}
+          {/* FLOATING BUTTON — rendered outside the Container branches so it
+              stays fixed on top regardless of which view is active */}
           {!selectedAttraction && (
             <Fab
               color="primary"
@@ -126,7 +143,7 @@ export default function App() {
               {isMapView ? <ListAltIcon /> : <MapIcon />}
             </Fab>
           )}
-        </Container>
+        </>
       )}
     </>
   );

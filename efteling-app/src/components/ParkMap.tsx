@@ -35,6 +35,8 @@ import {
 
 interface ParkMapProps {
   onSelectAttraction: (attraction: any) => void;
+  /** When true, the map fills the viewport top-to-bottom with no drag-out-of-bounds */
+  fullScreen?: boolean;
 }
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -46,6 +48,10 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 const eftelingRed = "rgb(170,24,44)";
+
+// MAP_WIDTH/MAP_HEIGHT (6777 x 7208) already match the real file's pixel
+// dimensions, so we can use them directly as the display aspect ratio too.
+const IMAGE_ASPECT_RATIO = MAP_WIDTH / MAP_HEIGHT;
 
 /* ----------------------------- Map Controls ----------------------------- */
 const MapControls = React.memo(() => {
@@ -117,37 +123,37 @@ const MapMarker = React.memo(function MapMarker({
 
   return (
     <Box
-  onClick={(e) => onClick(attraction, e)}
-  sx={{
-    position: "absolute",
-    left: `${(coord.x / MAP_WIDTH) * 100}%`,
-    top: `${(coord.y / MAP_HEIGHT) * 100}%`,
-    transform: isActive
-      ? "translate(-50%, -100%)"
-      : "translate(-50%, -50%)",
-    cursor: "pointer",
-    zIndex: isActive ? 100 : 10,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    pointerEvents: "auto",
+      onClick={(e) => onClick(attraction, e)}
+      sx={{
+        position: "absolute",
+        left: `${(coord.x / MAP_WIDTH) * 100}%`,
+        top: `${(coord.y / MAP_HEIGHT) * 100}%`,
+        transform: isActive
+          ? "translate(-50%, -100%)"
+          : "translate(-50%, -50%)",
+        cursor: "pointer",
+        zIndex: isActive ? 100 : 10,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "auto",
 
-    outline: "none",             // remove focus outline
-    "&:focus": { outline: "none" },
-    "&:active": { background: "transparent" }, // remove click background
-    userSelect: "none",           // optional: prevent text selection
-    WebkitTapHighlightColor: "transparent", // for mobile
-  }}
-  tabIndex={-1}  // makes Box not focusable for keyboard/tab
->
+        outline: "none",
+        "&:focus": { outline: "none" },
+        "&:active": { background: "transparent" },
+        userSelect: "none",
+        WebkitTapHighlightColor: "transparent",
+      }}
+      tabIndex={-1}
+    >
       {isActive ? (
         <LocationPinIcon
           sx={{
             color: eftelingRed,
             fontSize: { xs: 12, md: 18 },
             filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.4))",
-            transform: "scale(0)",               // start tiny
-            transformOrigin: "bottom center",    // grow from the bottom
+            transform: "scale(0)",
+            transformOrigin: "bottom center",
             animation: "growFromBottom 0.3s forwards",
             "@keyframes growFromBottom": {
               "0%": { transform: "scale(0)" },
@@ -168,21 +174,6 @@ const MapMarker = React.memo(function MapMarker({
             transition: "transform 0.2s",
             transform: { xs: "scale(0.5)", sm: "scale(0.75)", md: "scale(0.75)" },
             "&:hover": { transform: "scale(1.5)" },
-            // width: 4,
-            // height: 4,
-            // bgcolor: eftelingRed,
-            // border: "1px solid white",
-            // borderRadius: "50%",
-            // boxShadow: "0px 1px 3px rgba(0,0,0,0.3)",
-            // transformOrigin: "center",
-            // transition: "transform 0.2s",
-            // transform: { xs: "scale(0.5)", sm: "scale(0.75)", md: "scale(1)" },
-            // animation: "pulse 1.5s infinite ease-in-out",
-            // "&:hover": { transform: "scale(1)" },
-            // "@keyframes pulse": {
-            //   "0%": { transform: "scale(0.75)" },
-            //   "50%": { transform: "scale(1)" },
-            //   "100%": { transform: "scale(0.75)" },
           }}
         />
       )}
@@ -190,10 +181,11 @@ const MapMarker = React.memo(function MapMarker({
   );
 });
 
-
-
 /* ----------------------------- Main Component ----------------------------- */
-export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
+export default function ParkMap({
+  onSelectAttraction,
+  fullScreen = false,
+}: ParkMapProps) {
   const [allData, setAllData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -256,7 +248,6 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
     attraction: any,
     event: React.MouseEvent<HTMLElement>
   ) => {
-    // Prevent the map zoom library from intercepting this click
     event.stopPropagation();
     event.preventDefault();
 
@@ -277,34 +268,48 @@ export default function ParkMap({ onSelectAttraction }: ParkMapProps) {
     setActiveAttraction(null);
   };
 
-/* ----------------------------- Loading ----------------------------- */
-if (loading)
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "70vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fcf5ed",
-        position: "relative",
-    zIndex: 1,
-      }}
-    >
-      <GlowingLogoLoader />
-    </Box>
-  );
+  /* ----------------------------- Loading ----------------------------- */
+  if (loading)
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: fullScreen ? "100dvh" : "70vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#fcf5ed",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <GlowingLogoLoader />
+      </Box>
+    );
 
   /* ----------------------------- Render ----------------------------- */
   return (
-    <Box sx={{ width: "100%", maxWidth: 1400, mx: "auto", p: 2 }}>
+    <Box
+      sx={
+        fullScreen
+          ? { width: "100%", height: "100dvh", position: "relative" }
+          : { width: "100%", maxWidth: 1400, mx: "auto", p: 2 }
+      }
+    >
       {/* Filter Bar */}
       <Stack
         direction="row"
         spacing={1}
         sx={{
-          mb: 2,
+          ...(fullScreen
+            ? {
+                position: "absolute",
+                top: 12,
+                left: 12,
+                right: 12,
+                zIndex: 30,
+              }
+            : { mb: 2 }),
           overflowX: "auto",
           pb: 1,
           "&::-webkit-scrollbar": { display: "none" },
@@ -326,6 +331,7 @@ if (loading)
               fontWeight: "bold",
               fontSize: { xs: "0.6rem", md: "0.85rem" },
               height: { xs: 24, md: 32 },
+              boxShadow: fullScreen ? 2 : 0,
             }}
           />
         ))}
@@ -336,8 +342,9 @@ if (loading)
         sx={{
           position: "relative",
           overflow: "hidden",
-          borderRadius: 4,
-          boxShadow: 5,
+          height: fullScreen ? "100%" : "auto",
+          borderRadius: fullScreen ? 0 : 4,
+          boxShadow: fullScreen ? 0 : 5,
           bgcolor: "#f4f1ea",
           cursor: "grab",
           "&:active": { cursor: "grabbing" },
@@ -351,29 +358,73 @@ if (loading)
           limitToBounds
           panning={{ velocityDisabled: true }}
           wheel={{ step: 0.1 }}
-          // Close popover when starting to interact with map to prevent "contains" errors
+          alignmentAnimation={{ sizeX: 0, sizeY: 0 }}
           onZoomStart={handleClosePopover}
           onPanningStart={handleClosePopover}
         >
           <MapControls />
 
           <TransformComponent
-            wrapperStyle={{ width: "100%", maxHeight: "80vh", overflow: "hidden" }}
-            contentStyle={{ width: "100%", display: "flex", alignItems: "center" }}
+            wrapperStyle={{
+              width: "100%",
+              height: fullScreen ? "100dvh" : "auto",
+              maxHeight: fullScreen ? "100dvh" : "80vh",
+              overflow: "hidden",
+            }}
+            contentStyle={
+              fullScreen
+                ? {
+                    // No forced width here — this container must shrink-wrap
+                    // to the aspect-ratio Box below so the library measures
+                    // its REAL (often wider-than-viewport) size correctly.
+                    // centerOnInit handles centering instead of flexbox.
+                    height: "100%",
+                  }
+                : {
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                  }
+            }
           >
-            <Box sx={{ position: "relative", width: "100%" }}>
+            <Box
+              sx={{
+                position: "relative",
+                lineHeight: 0,
+                ...(fullScreen
+                  ? {
+                      height: "100dvh",
+                      width: "auto",
+                      aspectRatio: `${IMAGE_ASPECT_RATIO}`,
+                    }
+                  : {
+                      display: "block",
+                      width: "100%",
+                    }),
+              }}
+            >
               <img
                 src={mapImg}
                 alt="Efteling Map"
                 loading="eager"
                 decoding="async"
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  display: "block",
-                  userSelect: "none",
-                  pointerEvents: "none",
-                }}
+                style={
+                  fullScreen
+                    ? {
+                        width: "100%",
+                        height: "100%",
+                        display: "block",
+                        userSelect: "none",
+                        pointerEvents: "none",
+                      }
+                    : {
+                        width: "100%",
+                        height: "auto",
+                        display: "block",
+                        userSelect: "none",
+                        pointerEvents: "none",
+                      }
+                }
               />
 
               {Object.entries(attractionCoordinates).map(([id, coord]) => (
@@ -395,7 +446,7 @@ if (loading)
             anchor="bottom"
             open={Boolean(activeAttraction)}
             onClose={handleCloseDrawer}
-            onOpen={() => { }}
+            onOpen={() => {}}
             disableDiscovery
             disableBackdropTransition
             ModalProps={{ hideBackdrop: true, keepMounted: true }}
@@ -432,14 +483,13 @@ if (loading)
                 </Box>
 
                 <Box sx={{ flexGrow: 1, position: "relative" }}>
-                  {/* Centered Drag Handle / Visual Indicator */}
                   <Box
                     sx={{
                       width: 40,
                       bgcolor: "#ccc",
                       borderRadius: 2,
                       mx: "auto",
-                      mb: 1
+                      mb: 1,
                     }}
                   />
 
@@ -447,7 +497,6 @@ if (loading)
                     <Typography variant="h6" sx={{ fontWeight: "bold", color: eftelingRed }}>
                       {activeAttraction.title}
                     </Typography>
-                    {/* Close button removed from here */}
                   </Stack>
 
                   {activeAttraction.currentWaitTime !== undefined && (
@@ -457,26 +506,26 @@ if (loading)
                   )}
 
                   <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                    <Chip label={activeAttraction.category} sx={{
-                      bgcolor: eftelingRed,
-                      color: "white",
-                    }} />
+                    <Chip
+                      label={activeAttraction.category}
+                      sx={{
+                        bgcolor: eftelingRed,
+                        color: "white",
+                      }}
+                    />
                     <Chip
                       label={activeAttraction.state === "OPEN" ? "Geopend" : "Gesloten"}
                       color={activeAttraction.state === "OPEN" ? "success" : "error"}
                       sx={{ fontWeight: "bold" }}
                     />
                   </Stack>
-                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-
-                  </Stack>
-
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}></Stack>
 
                   <Box
                     sx={{
                       position: "absolute",
                       right: 0,
-                      bottom: 25, // Changed from top 50% for a cleaner look without the X icon
+                      bottom: 25,
                     }}
                   >
                     <IconButton
@@ -505,7 +554,6 @@ if (loading)
             anchorOrigin={{ vertical: "top", horizontal: "center" }}
             transformOrigin={{ vertical: "bottom", horizontal: "center" }}
             disableScrollLock
-            // Robustness fixes for "contains" error
             disableRestoreFocus
             disableAutoFocus
             PaperProps={{
