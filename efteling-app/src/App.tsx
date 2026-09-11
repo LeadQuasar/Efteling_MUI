@@ -124,7 +124,7 @@ export default function App() {
             </Container>
           )}
 
-          {/* FLOATING BUTTON — rendered outside the Container branches so it
+         {/* FLOATING BUTTON — rendered outside the Container branches so it
               stays fixed on top regardless of which view is active */}
           {!selectedAttraction && (
             <Fab
@@ -134,10 +134,13 @@ export default function App() {
               sx={{
                 position: "fixed",
                 bottom: 32,
-                right: 32,
+                // Dynamically set the right offset based on the view
+                right: isMapView ? 64 : 32, 
                 bgcolor: eftelingRed,
                 "&:hover": { bgcolor: "rgb(140, 20, 35)" },
                 zIndex: 1000,
+                // Optional: add a transition so it moves smoothly instead of jumping
+                transition: "right 0.3s ease-in-out, background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
               }}
             >
               {isMapView ? <ListAltIcon /> : <MapIcon />}
